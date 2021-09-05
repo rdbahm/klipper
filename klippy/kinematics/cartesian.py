@@ -117,7 +117,7 @@ class CartKinematics:
         # Compute max acceleration and velocity for each axis.
         self._check_endstops(move)
         nonzero_axes = [i for i, e in enumerate(move.axes_d) if e != 0]
-        move_ratios = move.move_d / abs(move.axes_d[i] for i in nonzero_axes)
+        move_ratios = move.move_d / abs([move.axes_d[i] for i in nonzero_axes])
         scaled_velocities = [self.max_velocities[i] * move_ratios[i] for i in nonzero_axes]
         scaled_accels = [self.max_accels[i] * move_ratios[i] for i in nonzero_axes]
         move_max_velocity = min(scaled_velocities)
