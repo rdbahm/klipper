@@ -23,17 +23,19 @@ class CartKinematics:
                                             self._motor_off)
         # Setup boundary checks
         max_velocity, max_accel = toolhead.get_max_velocity()
-        self.max_velocity[0] = config.getfloat('max_x_velocity', max_velocity,
+        self.max_velocities = []
+        self.max_accels = []
+        self.max_velocities[0] = config.getfloat('max_x_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_accel[0] = config.getfloat('max_x_accel', max_accel,
+        self.max_accels[0] = config.getfloat('max_x_accel', max_accel,
                                            above=0., maxval=max_accel)
-        self.max_velocity[1] = config.getfloat('max_y_velocity', max_velocity,
+        self.max_velocities[1] = config.getfloat('max_y_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_accel[1] = config.getfloat('max_y_accel', max_accel,
+        self.max_accels[1] = config.getfloat('max_y_accel', max_accel,
                                            above=0., maxval=max_accel)
-        self.max_velocity[2] = config.getfloat('max_z_velocity', max_velocity,
+        self.max_velocities[2] = config.getfloat('max_z_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_accel[2] = config.getfloat('max_z_accel', max_accel,
+        self.max_accels[2] = config.getfloat('max_z_accel', max_accel,
                                            above=0., maxval=max_accel)
         self.limits = [(1.0, -1.0)] * 3
         ranges = [r.get_range() for r in self.rails]
