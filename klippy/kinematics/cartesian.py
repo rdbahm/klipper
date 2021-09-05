@@ -23,8 +23,8 @@ class CartKinematics:
                                             self._motor_off)
         # Setup boundary checks
         max_velocity, max_accel = toolhead.get_max_velocity()
-        self.max_velocities = []
-        self.max_accels = []
+        self.max_velocities = [max_velocity]*3
+        self.max_accels = [max_accel]*3
         self.max_velocities[0] = config.getfloat('max_x_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
         self.max_accels[0] = config.getfloat('max_x_accel', max_accel,
