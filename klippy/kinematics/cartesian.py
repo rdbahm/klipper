@@ -23,17 +23,17 @@ class CartKinematics:
                                             self._motor_off)
         # Setup boundary checks
         max_velocity, max_accel = toolhead.get_max_velocity()
-        self.max_x_velocity = config.getfloat('max_x_velocity', max_velocity,
+        self.max_velocity[0] = config.getfloat('max_x_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_x_accel = config.getfloat('max_x_accel', max_accel,
+        self.max_accel[0] = config.getfloat('max_x_accel', max_accel,
                                            above=0., maxval=max_accel)
-        self.max_y_velocity = config.getfloat('max_y_velocity', max_velocity,
+        self.max_velocity[1] = config.getfloat('max_y_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_y_accel = config.getfloat('max_y_accel', max_accel,
+        self.max_accel[1] = config.getfloat('max_y_accel', max_accel,
                                            above=0., maxval=max_accel)
-        self.max_z_velocity = config.getfloat('max_z_velocity', max_velocity,
+        self.max_velocity[2] = config.getfloat('max_z_velocity', max_velocity,
                                               above=0., maxval=max_velocity)
-        self.max_z_accel = config.getfloat('max_z_accel', max_accel,
+        self.max_accel[2] = config.getfloat('max_z_accel', max_accel,
                                            above=0., maxval=max_accel)
         self.limits = [(1.0, -1.0)] * 3
         ranges = [r.get_range() for r in self.rails]
@@ -114,19 +114,12 @@ class CartKinematics:
             self._check_endstops(move)
         # Compute max acceleration and velocity for each axis.
         self._check_endstops(move)
-        x_ratio = move.move_d / abs(move.axes_d[0])
-        y_ratio = move.move_d / abs(move.axes_d[1])
-        z_ratio = move.move_d / abs(move.axes_d[2])
-        x_scaled_velocity = self.max_x_velocity * x_ratio
-        y_scaled_velocity = self.max_y_velocity * y_ratio
-        z_scaled_velocity = self.max_z_velocity * z_ratio
-        x_scaled_accel = self.max_x_accel * x_ratio
-        y_scaled_accel = self.max_y_accel * y_ratio
-        z_scaled_accel = self.max_z_accel * z_ratio
-        move_max_velocity = min(
-                x_scaled_velocity, y_scaled_velocity, z_scaled_velocity)
-        move_max_accel = min(
-                x_scaled_accel, y_scaled_accel, z_scaled_accel)
+        nonzero_axes = [i for i, e in enumerate(move.axes_d) if e != 0]
+        move_ratios = move.move_d / abs(move.axes_d[i] for i in nonzero_axes)
+        scaled_velocities = [self.max_velocity[i] * move_ratios[i] for i in nonzero_axes]
+        scaled_accels = [self.max_accel[i] * move_ratios[i] for i in nonzero_axes]
+        move_max_velocity = min(scaled_velocities)
+        move_max_accel = min(scaled_accels)
         move.limit_speed(move_max_velocity, move_max_accel)
     def get_status(self, eventtime):
         axes = [a for a, (l, h) in zip("xyz", self.limits) if l <= h]
